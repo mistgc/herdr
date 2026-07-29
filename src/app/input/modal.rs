@@ -200,6 +200,49 @@ pub(crate) fn handle_navigator_key(
         return;
     }
 
+    // Convert for configurable binding matching
+    let terminal_key = TerminalKey::from(key);
+
+    // Check configurable navigator bindings before hardcoded keys
+    if state.keybinds.navigator.down.matches_direct_key(terminal_key) {
+        state.move_navigator_selection_from(terminal_runtimes, 1);
+        return;
+    }
+    if state.keybinds.navigator.up.matches_direct_key(terminal_key) {
+        state.move_navigator_selection_from(terminal_runtimes, -1);
+        return;
+    }
+    if state.keybinds.navigator.filter_all.matches_direct_key(terminal_key) {
+        state.navigator.query.clear();
+        state.navigator.state_filter = None;
+        state.clamp_navigator_selection_from(terminal_runtimes);
+        return;
+    }
+    if state.keybinds.navigator.filter_blocked.matches_direct_key(terminal_key) {
+        state.navigator.query.clear();
+        state.navigator.state_filter = Some(NavigatorStateFilter::Blocked);
+        state.select_first_navigator_match_from(terminal_runtimes);
+        return;
+    }
+    if state.keybinds.navigator.filter_working.matches_direct_key(terminal_key) {
+        state.navigator.query.clear();
+        state.navigator.state_filter = Some(NavigatorStateFilter::Working);
+        state.select_first_navigator_match_from(terminal_runtimes);
+        return;
+    }
+    if state.keybinds.navigator.filter_idle.matches_direct_key(terminal_key) {
+        state.navigator.query.clear();
+        state.navigator.state_filter = Some(NavigatorStateFilter::Idle);
+        state.select_first_navigator_match_from(terminal_runtimes);
+        return;
+    }
+    if state.keybinds.navigator.filter_done.matches_direct_key(terminal_key) {
+        state.navigator.query.clear();
+        state.navigator.state_filter = Some(NavigatorStateFilter::Done);
+        state.select_first_navigator_match_from(terminal_runtimes);
+        return;
+    }
+
     match key.code {
         KeyCode::Esc => {
             leave_modal(state);
