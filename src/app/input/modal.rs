@@ -204,7 +204,12 @@ pub(crate) fn handle_navigator_key(
     let terminal_key = TerminalKey::from(key);
 
     // Check configurable navigator bindings before hardcoded keys
-    if state.keybinds.navigator.down.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .down
+        .matches_direct_key(terminal_key)
+    {
         state.move_navigator_selection_from(terminal_runtimes, 1);
         return;
     }
@@ -212,31 +217,56 @@ pub(crate) fn handle_navigator_key(
         state.move_navigator_selection_from(terminal_runtimes, -1);
         return;
     }
-    if state.keybinds.navigator.filter_all.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .filter_all
+        .matches_direct_key(terminal_key)
+    {
         state.navigator.query.clear();
         state.navigator.state_filter = None;
         state.clamp_navigator_selection_from(terminal_runtimes);
         return;
     }
-    if state.keybinds.navigator.filter_blocked.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .filter_blocked
+        .matches_direct_key(terminal_key)
+    {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Blocked);
         state.select_first_navigator_match_from(terminal_runtimes);
         return;
     }
-    if state.keybinds.navigator.filter_working.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .filter_working
+        .matches_direct_key(terminal_key)
+    {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Working);
         state.select_first_navigator_match_from(terminal_runtimes);
         return;
     }
-    if state.keybinds.navigator.filter_idle.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .filter_idle
+        .matches_direct_key(terminal_key)
+    {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Idle);
         state.select_first_navigator_match_from(terminal_runtimes);
         return;
     }
-    if state.keybinds.navigator.filter_done.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .filter_done
+        .matches_direct_key(terminal_key)
+    {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Done);
         state.select_first_navigator_match_from(terminal_runtimes);
@@ -2076,8 +2106,7 @@ mod tests {
         state.mode = Mode::Navigator;
 
         // Override filter_all to use "x" instead of default "a"
-        state.keybinds.navigator.filter_all =
-            crate::config::ActionKeybinds::direct("x");
+        state.keybinds.navigator.filter_all = crate::config::ActionKeybinds::direct("x");
 
         // Pressing old key "a" should NOT trigger filter (falls through, no-op)
         handle_navigator_key(
@@ -2096,6 +2125,70 @@ mod tests {
         );
         assert_eq!(state.navigator.state_filter, None);
         assert!(state.navigator.query.is_empty());
+    }
+
+    #[test]
+    fn navigator_configurable_movement_binding_moves_selection() {
+        let mut state = state_with_workspaces(&["alpha", "beta"]);
+        let terminal_runtimes = crate::terminal::TerminalRuntimeRegistry::new();
+        state.mode = Mode::Navigator;
+
+        // Override movement keys to modified chords.
+        state.keybinds.navigator.down = crate::config::ActionKeybinds::direct("ctrl+n");
+        state.keybinds.navigator.up = crate::config::ActionKeybinds::direct("ctrl+p");
+
+        let initial = state.navigator.selected;
+
+        // Custom down binding moves the selection down.
+        handle_navigator_key(
+            &mut state,
+            &terminal_runtimes,
+            KeyEvent::new(KeyCode::Char('n'), KeyModifiers::CONTROL),
+        );
+        assert_eq!(state.navigator.selected, initial + 1);
+
+        // Custom up binding moves the selection back up.
+        handle_navigator_key(
+            &mut state,
+            &terminal_runtimes,
+            KeyEvent::new(KeyCode::Char('p'), KeyModifiers::CONTROL),
+        );
+        assert_eq!(state.navigator.selected, initial);
+
+        // The old default keys no longer move the selection.
+        handle_navigator_key(
+            &mut state,
+            &terminal_runtimes,
+            KeyEvent::new(KeyCode::Char('j'), KeyModifiers::empty()),
+        );
+        assert_eq!(state.navigator.selected, initial);
+    }
+
+    #[test]
+    fn navigator_hardcoded_arrows_still_work_with_custom_bindings() {
+        let mut state = state_with_workspaces(&["alpha", "beta"]);
+        let terminal_runtimes = crate::terminal::TerminalRuntimeRegistry::new();
+        state.mode = Mode::Navigator;
+
+        state.keybinds.navigator.down = crate::config::ActionKeybinds::direct("ctrl+n");
+        state.keybinds.navigator.up = crate::config::ActionKeybinds::direct("ctrl+p");
+
+        let initial = state.navigator.selected;
+
+        // Arrow keys remain hardcoded aliases.
+        handle_navigator_key(
+            &mut state,
+            &terminal_runtimes,
+            KeyEvent::new(KeyCode::Down, KeyModifiers::empty()),
+        );
+        assert_eq!(state.navigator.selected, initial + 1);
+
+        handle_navigator_key(
+            &mut state,
+            &terminal_runtimes,
+            KeyEvent::new(KeyCode::Up, KeyModifiers::empty()),
+        );
+        assert_eq!(state.navigator.selected, initial);
     }
 
     #[test]
