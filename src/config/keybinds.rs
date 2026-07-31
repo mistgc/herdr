@@ -475,6 +475,7 @@ impl Config {
         navigate_registry.reserve_direct(prefix, "keys.prefix", prefix_source);
         reserve_navigate_runtime_keys(&mut navigate_registry);
         let mut navigator_registry = BindingRegistry::new(prefix, prefix_source);
+        reserve_navigator_runtime_keys(&mut navigator_registry);
 
         macro_rules! empty_action {
             () => {
@@ -644,10 +645,26 @@ impl Config {
             apply_navigator!(keybinds.navigator.up, navigator_up, source);
             apply_navigator!(keybinds.navigator.down, navigator_down, source);
             apply_navigator!(keybinds.navigator.filter_all, navigator_filter_all, source);
-            apply_navigator!(keybinds.navigator.filter_blocked, navigator_filter_blocked, source);
-            apply_navigator!(keybinds.navigator.filter_working, navigator_filter_working, source);
-            apply_navigator!(keybinds.navigator.filter_idle, navigator_filter_idle, source);
-            apply_navigator!(keybinds.navigator.filter_done, navigator_filter_done, source);
+            apply_navigator!(
+                keybinds.navigator.filter_blocked,
+                navigator_filter_blocked,
+                source
+            );
+            apply_navigator!(
+                keybinds.navigator.filter_working,
+                navigator_filter_working,
+                source
+            );
+            apply_navigator!(
+                keybinds.navigator.filter_idle,
+                navigator_filter_idle,
+                source
+            );
+            apply_navigator!(
+                keybinds.navigator.filter_done,
+                navigator_filter_done,
+                source
+            );
             apply_action!(keybinds.help, help, source);
             apply_action!(keybinds.settings, settings, source);
             apply_action!(keybinds.new_workspace, new_workspace, source);
@@ -779,6 +796,28 @@ fn reserve_navigate_runtime_keys(registry: &mut BindingRegistry) {
             "navigate reserved keys",
             BindingSource::Default,
         );
+    }
+}
+
+/// Reserve the navigator overlay's hardcoded keys so user navigator bindings
+/// cannot silently shadow them. Esc is additionally rejected before this
+/// check, and the default `navigator_*` bindings (k/j/a/b/w/i/d) never
+/// collide with these.
+fn reserve_navigator_runtime_keys(registry: &mut BindingRegistry) {
+    for combo in [
+        (KeyCode::Esc, KeyModifiers::empty()),
+        (KeyCode::Enter, KeyModifiers::empty()),
+        (KeyCode::Char('/'), KeyModifiers::empty()),
+        (KeyCode::Char(' '), KeyModifiers::empty()),
+        (KeyCode::Char('d'), KeyModifiers::CONTROL),
+        (KeyCode::Char('u'), KeyModifiers::CONTROL),
+        (KeyCode::Home, KeyModifiers::empty()),
+        (KeyCode::End, KeyModifiers::empty()),
+        (KeyCode::Char('G'), KeyModifiers::SHIFT),
+        (KeyCode::Up, KeyModifiers::empty()),
+        (KeyCode::Down, KeyModifiers::empty()),
+    ] {
+        registry.reserve_direct(combo, "navigator reserved keys", BindingSource::Default);
     }
 }
 
@@ -1639,13 +1678,34 @@ next_tab = "prefix+n"
     #[test]
     fn navigator_defaults() {
         let kb = Config::default().keybinds();
-        assert!(kb.navigator.up.matches_direct_key(TerminalKey::new(KeyCode::Char('k'), KeyModifiers::empty())));
-        assert!(kb.navigator.down.matches_direct_key(TerminalKey::new(KeyCode::Char('j'), KeyModifiers::empty())));
-        assert!(kb.navigator.filter_all.matches_direct_key(TerminalKey::new(KeyCode::Char('a'), KeyModifiers::empty())));
-        assert!(kb.navigator.filter_blocked.matches_direct_key(TerminalKey::new(KeyCode::Char('b'), KeyModifiers::empty())));
-        assert!(kb.navigator.filter_working.matches_direct_key(TerminalKey::new(KeyCode::Char('w'), KeyModifiers::empty())));
-        assert!(kb.navigator.filter_idle.matches_direct_key(TerminalKey::new(KeyCode::Char('i'), KeyModifiers::empty())));
-        assert!(kb.navigator.filter_done.matches_direct_key(TerminalKey::new(KeyCode::Char('d'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .up
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('k'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .down
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('j'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .filter_all
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('a'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .filter_blocked
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('b'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .filter_working
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('w'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .filter_idle
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('i'), KeyModifiers::empty())));
+        assert!(kb
+            .navigator
+            .filter_done
+            .matches_direct_key(TerminalKey::new(KeyCode::Char('d'), KeyModifiers::empty())));
     }
 
     #[test]
@@ -2028,6 +2088,29 @@ command = "echo no"
         assert!(config.keybinds().custom_commands.is_empty());
         assert!(diagnostics.iter().any(|diag| {
             diag.contains("unsafe direct keybinding") && diag.contains("keys.command[0].key")
+        }));
+    }
+
+    #[test]
+    fn navigator_binding_colliding_with_reserved_key_is_disabled() {
+        let config: Config = toml::from_str(
+            r#"
+[keys]
+navigator_filter_done = "ctrl+d"
+navigator_up = "enter"
+"#,
+        )
+        .unwrap();
+        let diagnostics = config.collect_diagnostics();
+        let keybinds = config.keybinds();
+        assert!(keybinds.navigator.filter_done.bindings.is_empty());
+        assert!(keybinds.navigator.up.bindings.is_empty());
+        assert!(diagnostics.iter().any(|diag| {
+            diag.contains("navigator reserved keys")
+                && diag.contains("disabled keys.navigator_filter_done")
+        }));
+        assert!(diagnostics.iter().any(|diag| {
+            diag.contains("navigator reserved keys") && diag.contains("disabled keys.navigator_up")
         }));
     }
 
