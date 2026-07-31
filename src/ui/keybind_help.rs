@@ -109,6 +109,31 @@ pub(super) fn keybind_help_groups(app: &AppState) -> Vec<HelpGroup> {
         ],
     ));
 
+    groups.push((
+        "navigator",
+        vec![
+            help_entry(
+                format!(
+                    "{} / {} / up / down",
+                    keybind_label(&kb.navigator.down),
+                    keybind_label(&kb.navigator.up)
+                ),
+                "move",
+            ),
+            help_entry(
+                format!(
+                    "{}/{}/{}/{}/{}",
+                    keybind_label(&kb.navigator.filter_blocked),
+                    keybind_label(&kb.navigator.filter_working),
+                    keybind_label(&kb.navigator.filter_idle),
+                    keybind_label(&kb.navigator.filter_done),
+                    keybind_label(&kb.navigator.filter_all)
+                ),
+                "state filters",
+            ),
+        ],
+    ));
+
     let workspace_tab = vec![
         help_entry(keybind_label(&kb.workspace_picker), "workspace navigation"),
         help_entry(keybind_label(&kb.goto), "session navigator"),
