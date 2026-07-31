@@ -314,6 +314,48 @@
           "description": "Focus the pane to the right in navigate mode. Right arrow is always an alias."
         },
         {
+          "key": "keys.navigator_up",
+          "type": "keybinding",
+          "default": "\"k\"",
+          "description": "Move the navigator selection up. Up arrow is always available."
+        },
+        {
+          "key": "keys.navigator_down",
+          "type": "keybinding",
+          "default": "\"j\"",
+          "description": "Move the navigator selection down. Down arrow is always available."
+        },
+        {
+          "key": "keys.navigator_filter_all",
+          "type": "keybinding",
+          "default": "\"a\"",
+          "description": "Show all panes in the navigator."
+        },
+        {
+          "key": "keys.navigator_filter_blocked",
+          "type": "keybinding",
+          "default": "\"b\"",
+          "description": "Filter the navigator to blocked agents."
+        },
+        {
+          "key": "keys.navigator_filter_working",
+          "type": "keybinding",
+          "default": "\"w\"",
+          "description": "Filter the navigator to working agents."
+        },
+        {
+          "key": "keys.navigator_filter_idle",
+          "type": "keybinding",
+          "default": "\"i\"",
+          "description": "Filter the navigator to idle agents."
+        },
+        {
+          "key": "keys.navigator_filter_done",
+          "type": "keybinding",
+          "default": "\"d\"",
+          "description": "Filter the navigator to done agents."
+        },
+        {
           "key": "keys.detach",
           "type": "keybinding",
           "default": "\"prefix+q\"",
