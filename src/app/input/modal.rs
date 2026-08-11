@@ -208,12 +208,17 @@ pub(crate) fn handle_navigator_key(
         .keybinds
         .navigator
         .down
-        .matches_direct_key(terminal_key)
+        .matches_direct_key(&terminal_key)
     {
         state.move_navigator_selection_from(terminal_runtimes, 1);
         return;
     }
-    if state.keybinds.navigator.up.matches_direct_key(terminal_key) {
+    if state
+        .keybinds
+        .navigator
+        .up
+        .matches_direct_key(&terminal_key)
+    {
         state.move_navigator_selection_from(terminal_runtimes, -1);
         return;
     }
@@ -221,7 +226,7 @@ pub(crate) fn handle_navigator_key(
         .keybinds
         .navigator
         .filter_all
-        .matches_direct_key(terminal_key)
+        .matches_direct_key(&terminal_key)
     {
         state.navigator.query.clear();
         state.navigator.state_filter = None;
@@ -232,7 +237,7 @@ pub(crate) fn handle_navigator_key(
         .keybinds
         .navigator
         .filter_blocked
-        .matches_direct_key(terminal_key)
+        .matches_direct_key(&terminal_key)
     {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Blocked);
@@ -243,7 +248,7 @@ pub(crate) fn handle_navigator_key(
         .keybinds
         .navigator
         .filter_working
-        .matches_direct_key(terminal_key)
+        .matches_direct_key(&terminal_key)
     {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Working);
@@ -254,7 +259,7 @@ pub(crate) fn handle_navigator_key(
         .keybinds
         .navigator
         .filter_idle
-        .matches_direct_key(terminal_key)
+        .matches_direct_key(&terminal_key)
     {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Idle);
@@ -265,7 +270,7 @@ pub(crate) fn handle_navigator_key(
         .keybinds
         .navigator
         .filter_done
-        .matches_direct_key(terminal_key)
+        .matches_direct_key(&terminal_key)
     {
         state.navigator.query.clear();
         state.navigator.state_filter = Some(NavigatorStateFilter::Done);
@@ -314,10 +319,10 @@ pub(crate) fn handle_navigator_key(
             state.navigator.state_filter = Some(NavigatorStateFilter::Done);
             state.select_first_navigator_match_from(terminal_runtimes);
         }
-        KeyCode::Char('j') | KeyCode::Down if key.modifiers.is_empty() => {
+        KeyCode::Down if key.modifiers.is_empty() => {
             state.move_navigator_selection_from(terminal_runtimes, 1)
         }
-        KeyCode::Char('k') | KeyCode::Up if key.modifiers.is_empty() => {
+        KeyCode::Up if key.modifiers.is_empty() => {
             state.move_navigator_selection_from(terminal_runtimes, -1)
         }
         KeyCode::Char('d') if key.modifiers == KeyModifiers::CONTROL => state

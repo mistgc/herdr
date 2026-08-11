@@ -1681,31 +1681,31 @@ next_tab = "prefix+n"
         assert!(kb
             .navigator
             .up
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('k'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('k'), KeyModifiers::empty())));
         assert!(kb
             .navigator
             .down
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('j'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('j'), KeyModifiers::empty())));
         assert!(kb
             .navigator
             .filter_all
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('a'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('a'), KeyModifiers::empty())));
         assert!(kb
             .navigator
             .filter_blocked
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('b'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('b'), KeyModifiers::empty())));
         assert!(kb
             .navigator
             .filter_working
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('w'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('w'), KeyModifiers::empty())));
         assert!(kb
             .navigator
             .filter_idle
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('i'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('i'), KeyModifiers::empty())));
         assert!(kb
             .navigator
             .filter_done
-            .matches_direct_key(TerminalKey::new(KeyCode::Char('d'), KeyModifiers::empty())));
+            .matches_direct_key(&TerminalKey::new(KeyCode::Char('d'), KeyModifiers::empty())));
     }
 
     #[test]
